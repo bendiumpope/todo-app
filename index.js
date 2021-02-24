@@ -1,29 +1,29 @@
+/* GLOBAL VARIABLE DECLARATION */
 let selectedTag = null;
 let selectedTagId = null;
 let todos = [];
 let todoIds = []
+let resultId = JSON.parse(window.localStorage.getItem("idCode"));
+let todoResults = JSON.parse(window.localStorage.getItem("todoCodes")) || [];
 
-// window.localStorage.clear()
 
 function onFormSubmit() {
 
-    
     if (selectedTag === null) {
-        insertNewRecord(readFormData());  
+        insertNewTodo(readFormData());  
     } else {
         data = document.getElementById("todoInputId").value;
-        // console.log(data)
         updateRecord(data);
     }
     
     resetForm();
-    
 }
+
+/* readFormData() function reads data from input and 
+handles insertion to local storage then return the read data */
 
 function readFormData() {
     var formData = {};
-    let resultId = JSON.parse(window.localStorage.getItem("idCode"));
-    let todoResults = JSON.parse(window.localStorage.getItem("todoCodes")) || [];
 
     if (resultId === null) {
         formData["id"] = 0
@@ -46,76 +46,34 @@ function readFormData() {
         todoResults.push(formData)
         window.localStorage.setItem("todoCodes", JSON.stringify(todoResults));
     }
-    
 
     return formData;
 }
 
-function appDate () {
 
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+/* insertNewTodo(data) function calls the appendTodo(data) 
+function to populate the dom with the input data */
 
-
-    const currentDate = new Date();
-    const currentHour = currentDate.getHours() + 1
-    const currentMinute = currentDate.getMinutes()
-    const currentDateOfWeek = currentDate.getDate()
-    const currentDayOfWeek = currentDate.getDay();
-    const currentMonth = currentDate.getMonth(); // Be careful! January is 0, not 1
-    const currentYear = currentDate.getFullYear();
-
-   
-    return `${days[currentDayOfWeek]}, ${currentDateOfWeek} ${months[currentMonth]} ${currentYear}, ${currentHour}:${currentMinute}`
-}
-
-function insertNewRecord(data) {
-
-        var todoTitle = document.createElement('h5');
-        todoTitle.setAttribute("id", `${data.id}h5`);
-        todoTitle.classList.add('mb-auto', 'todoText');
-
-        //todo Date
-        var todoDate = document.createElement('p');
-        todoDate.setAttribute("id", `${data.id}todoDate`);
-        todoDate.classList.add('ptag');
-        todoDate.innerHTML = data.date;
-    
-        //todo text div
-        var textDiv = document.createElement('div');
-        textDiv.setAttribute("id", `${data.id}textDiv`);
-        textDiv.classList.add('todoTextDiv', 'col-8', 'mr-auto', 'd-flex', 'flex-column');
-    
-        textDiv.appendChild(todoTitle);
-        textDiv.appendChild(todoDate);
-        // console.log(`${data.id}`)
-    
-        todoTitle.textContent = data.todoInput;
-
-        var newTodoDiv = document.createElement('div');
-        newTodoDiv.setAttribute("id", `${data.id}newTododiv`);
-        newTodoDiv.classList.add('todoDiv1', 'row');
-
-        var iconDiv = document.createElement('div');
-        iconDiv.setAttribute("id", `${data.id}icondiv`);
-        iconDiv.classList.add('icons', 'd-flex', 'align-items-end');
-
-        iconDiv.innerHTML = `<a class="ml-3" onclick="onCopy(this);" id=${data.id}><i class="far fa-save"></i></a> 
-    <a class="ml-3" onClick="onEdit(this);" id=${data.id}><i class="fas fa-edit"></i></a> 
-    <a class="ml-3 mr-3" onClick="onDelete(this);" id=${data.id}><i class="fas fa-trash"></i></a>`;
-    
-        newTodoDiv.appendChild(textDiv);
-        newTodoDiv.appendChild(iconDiv);
-
-        var todoDiv = document.querySelector('#todoDiv');
-        todoDiv.appendChild(newTodoDiv);
+function insertNewTodo(data) {
+        appendTodos(data);
 };
 
-function preTodos() {
-    
-    let result = JSON.parse(window.localStorage.getItem("todoCodes"));
+/* preTodos(todoArray) function calls the appendTodo(el) 
+function to populate the dom with the todos from read from
+ the local storage */
 
-    result.forEach((el) => {
+function preTodos(todosArray) {
+
+   todosArray.forEach((el) => { 
+        appendTodos(el)
+
+   });    
+};
+
+/* appendTodos(el) function recieves a todo and populate the 
+dom with the todo recieved */
+
+function appendTodos(el) {
 
         //todo Text
         var todoTitle = document.createElement('h5');
@@ -155,36 +113,45 @@ function preTodos() {
 
         var todoDiv = document.querySelector('#todoDiv');
         todoDiv.appendChild(newTodoDiv);
-    
-    
-    })
+
 };
 
+/* resetForm() function resets the inputfield */
 
 function resetForm() {
     document.getElementById("todoInputId").value = " ";
     selectedTag = null;
 }
 
+
 function onEdit(ele) {
 
+    let saveTodo = document.getElementById("saveTodo");
     selectedTag = ele.parentElement.firstElementChild.firstElementChild
     selectedTagId = ele.id;
     
+    if(saveTodo.value == "Add Todo"){
+        saveTodo.value = "Save Todo"
+    }    
     document.getElementById("todoInputId").value = document.getElementById(`${ele.id}h5`).innerHTML;
 
 }
+
 
 function updateRecord(data) {
      let result = JSON.parse(window.localStorage.getItem("todoCodes"));
 
     document.getElementById(`${selectedTagId}h5`).innerText = data;
-    
+    let saveTodo = document.getElementById("saveTodo");
+
     result.forEach((el) => { 
+
         if (selectedTagId == el.id) {
-            // console.log(`el.id: ${el.id} ..... selectedTagId: ${selectedTagId}`)
-            el.todoInput = data; 
-            // console.log(`el.todoInput: ${el.todoInput}`)
+
+            if(saveTodo.value == "Save Todo"){
+                saveTodo.value = "Add Todo"
+            }
+            el.todoInput = data;  
 
         }
     });
@@ -194,36 +161,35 @@ function updateRecord(data) {
 }
 
 function onDelete(ele) {
-    let result = JSON.parse(window.localStorage.getItem("todoCodes"));
+    
     let newResult = [];
     selectedTagId = ele.id;
     document.getElementById(`${selectedTagId}newTododiv`).remove();
     
-    result.forEach((el) => { 
+    todoResults.forEach((el) => { 
 
         if (selectedTagId != el.id) {
-            // console.log(`el.id: ${el.id} ..... selectedTagId: ${selectedTagId}`)
             newResult.push(el); 
-            // console.log(`el.todoInput: ${el.todoInput}`)
-
         }
     });
     window.localStorage.removeItem('todoCodes');
     window.localStorage.setItem("todoCodes", JSON.stringify(newResult));    
 }
 
+
 function onCopy(ele) {
+
     selectedTagId = ele.id;
-    /* Get the text field */
     var text = document.getElementById(`${selectedTagId}h5`).innerHTML;
     document.getElementById("todoInputId").value = text;
     var copyText = document.getElementById("todoInputId");
     copyText.select();
     document.execCommand("copy");
     resetForm()
-    alert("Copied the text: " + copyText.value);
+    alert("Copied: " + text);
 }  
 
+/* Dynamic Search */
 let search_Input = document.getElementById("search_Input");
 search_Input.addEventListener("keyup", function (e) {
     let search_item = e.target.value.toLowerCase();
@@ -232,6 +198,8 @@ search_Input.addEventListener("keyup", function (e) {
 
 })
 
+/* searchTodo(search_item) function recieves a search item and populate the 
+dom with the todos that matches the search item recieved */
 
 function searchTodo(search_item) {
     
@@ -239,20 +207,37 @@ function searchTodo(search_item) {
 
     let result = JSON.parse(window.localStorage.getItem("todoCodes"));
     
-    // let search_item = e.target.value.toLowerCase();
-        
-    
         result.forEach((todo) => {
         
             if (todo.todoInput.toLowerCase().indexOf(search_item) != -1) {
            
                 document.getElementById(`${todo.id}newTododiv`).closest("div").style.display = "block";
-            
             }else {
-                document.getElementById(`${todo.id}newTododiv`).closest("div").style.display = "none";  
+                document.getElementById(`${todo.id}newTododiv`).closest("div").style.display = "none"; 
             } 
         })
 
 }
 
-preTodos();
+/* appDate() function returns the formated date, day, 
+month, year and time the todo was created */
+
+function appDate () {
+
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+
+    const currentDate = new Date();
+    const currentHour = currentDate.getHours() + 1
+    const currentMinute = currentDate.getMinutes()
+    const currentDateOfWeek = currentDate.getDate()
+    const currentDayOfWeek = currentDate.getDay();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+   
+    return `${days[currentDayOfWeek]}, ${currentDateOfWeek} ${months[currentMonth]} ${currentYear}, ${currentHour}:${currentMinute}`
+}
+
+preTodos(todoResults);
