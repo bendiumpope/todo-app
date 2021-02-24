@@ -226,7 +226,7 @@ function onCopy(ele) {
 
 let search_Input = document.getElementById("search_Input");
 search_Input.addEventListener("keyup", function (e) {
-    let search_item = e.key.toLowerCase();
+    let search_item = e.target.value.toLowerCase();
 
     searchTodo(search_item);
 
