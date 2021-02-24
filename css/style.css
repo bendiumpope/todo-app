@@ -1,0 +1,27 @@
+.titleH3{
+    text-align: center;
+}
+.inputClass{
+    width: 60%;  
+}
+.todoDivClass{
+    width: 60%;
+    height: 6rem;
+}
+
+.todoDiv1{
+    height: 6rem;
+    border: 2px solid #A9A9A9;
+    border-radius: 4px;
+    padding: 2%;
+    z-index: -5;
+
+}
+
+
+.ptag{
+    margin-bottom: 0;
+    color: #A9A9A9;
+    font-size: 0.8rem;
+    font-weight:bold;
+}
